@@ -185,13 +185,11 @@
                             <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">Plastic reduced on Aug 1st?</button>
                             <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">What is ABB's sustainability goal?</button>
                             <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">CO2 emission on Aug 1st?</button>
-                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">LCA Summary (Product X)</button>
-                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">Waste Diversion Rate (Q3)</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">What was the highest daily plastic reduced value and on what date did it occur?</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">What is the average consumption of Argon and Helium combined?</button>
                             
                             <!-- ADVANCED FEATURES -->
-                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">❓ How to Use Features</button>
-                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200" data-action="start-document-summary">✨ Summarize Report</button>
-                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200" data-action="start-file-query">🧠 Query Custom File</button>
+            
                         </div>
                     </div>
                     
@@ -334,7 +332,7 @@
 
         // --- API CONFIG FIX: Using secure model and blank key for Canvas ---
         const MODEL_NAME = 'gemini-2.5-flash-preview-09-2025';
-        const apiKey = ""; // Left blank for Canvas environment to provide
+        const apiKey = "AIzaSyALyruh7E02U_xmpPjT973cI3l2sRE1viI"; // Left blank for Canvas environment to provide
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
         
         if (typeof window.chatHistory === 'undefined') window.chatHistory = [];
