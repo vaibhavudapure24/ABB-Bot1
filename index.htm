@@ -1,0 +1,720 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABB BOT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply Inter font and clean WHITE background styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa; /* Subtle off-white background for depth */
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+            color: #374151;
+        }
+        /* Frosted Glass Effect for the Chat Container - Enhanced Shadow */
+        #chat-container {
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background-color: rgba(255, 255, 255, 0.95); /* Nearly opaque white */
+            border: 1px solid #fee2e2; /* Softer border */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1); /* Deeper, softer shadow */
+            transition: all 0.3s ease;
+        }
+        /* Custom scrollbar styling */
+        #chat-window::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-window::-webkit-scrollbar-track {
+            background: #fdf2f2;
+        }
+        #chat-window::-webkit-scrollbar-thumb {
+            background: #ef4444;
+            border-radius: 4px;
+        }
+        #chat-window::-webkit-scrollbar-thumb:hover {
+            background: #f87171;
+        }
+        /* Fade in animation for messages */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        /* Mic Recording Pulse Animation */
+        .recording {
+            animation: pulse-mic 1s infinite;
+        }
+        @keyframes pulse-mic {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        /* Input Field Styling */
+        #message-input {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #e5e7eb; /* Lighter border */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Softer inner shadow */
+        }
+        #message-input::placeholder {
+            color: #9ca3af;
+        }
+        /* Sample Question Button Styles - Tighter design */
+        .sample-question {
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+            border-radius: 0.5rem; /* Slightly smaller radius */
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-weight: 500;
+        }
+        .sample-question:hover {
+            transform: translateY(-1px); /* More subtle lift */
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.1);
+            background-color: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+        .sample-question.active {
+            background-color: #dc2626;
+            color: white;
+            box-shadow: 0 2px 5px rgba(220, 38, 38, 0.4);
+        }
+        /* Card Container Styling - Enhanced Look */
+        .topic-card {
+            border-radius: 1.25rem; /* Larger radius for modern look */
+            border: 1px solid #fecaca; /* Light red border */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Floating effect */
+            background-color: white;
+            transition: all 0.3s;
+        }
+        .topic-card:hover {
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.1); /* Shadow hint of accent color */
+        }
+        /* File Upload Button Styling */
+        #file-upload-label {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        #file-upload-input {
+            opacity: 0;
+            position: absolute;
+            z-index: -1;
+            width: 0;
+            height: 0;
+        }
+        #upload-status {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            font-size: 0.6rem;
+            color: #10b981;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div id="chat-container" class="w-full max-w-lg mx-4 rounded-3xl shadow-2xl flex flex-col overflow-hidden" style="height: 95vh; max-height: 800px;">
+        <!-- Header -->
+        <div class="p-5 bg-gradient-to-r from-red-600 to-rose-700 flex items-center justify-between text-white shadow-lg">
+            <div class="flex items-center">
+                 <div class="relative w-12 h-12">
+                     <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center p-1 shadow-md">
+                         <!-- UPDATED LOGO SOURCE -->
+                         <img src="images.png" alt="ABB Logo" class="h-8 w-auto">
+                     </div>
+                     <span class="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-green-400 border-2 border-white"></span>
+                 </div>
+                 <div class="ml-4">
+                     <h1 class="text-xl font-bold">ABB BOT</h1>
+                     <!-- RESTORING STATUS TEXT BELOW NAME -->
+                     <p class="text-sm text-red-100/70">Active now</p>
+                 </div>
+            </div>
+            <button id="tts-btn" class="text-white/80 p-3 rounded-full hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white transition-colors">
+                <svg id="tts-icon-on" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+                <svg id="tts-icon-off" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /> <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l-5-5m0 5l5-5" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="flex-1 p-6 overflow-y-auto bg-white">
+            <!-- Initial Bot Message -->
+            <div class="message-fade-in flex items-start gap-4 justify-start mb-6">
+                <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 shadow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm max-w-xs" style="border-top-left-radius: 0;">
+                    <p class="text-sm text-gray-700">Welcome! I am your ABB Sustainability Analyst Bot. I provide concise data lookups, compliance reports, and advanced document queries based on environmental data.</p>
+                </div>
+            </div>
+
+            <!-- Guide Options for LLM Features - CONSOLIDATED AND PROMOTED TO THE START -->
+            <div id="sample-questions" class="my-8 message-fade-in" style="animation-delay: 0.5s;">
+                <div class="grid grid-cols-1 gap-4">
+                    
+                    <!-- SUSTAINABILITY COLUMN (Full Width) -->
+                    <div class="topic-card space-y-2 p-4 flex flex-col items-center w-full">
+                        <!-- Sustainability Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                             <path d="M17.5 19.4L15 15.4L16.4 14L18.4 15.9L22.9 10.4L21.5 9L17.5 13.5L12.5 8.5L8.5 12.5L4.5 8.5L2 11V18C2 19.1046 2.89543 20 4 20H15C16.1046 20 17 19.1046 17 18V18L17.5 19.4Z"></path>
+                             <path d="M11 20H4C2.89543 20 2 19.1046 2 18V6C2 4.89543 2.89543 4 4 4H20C21.1046 4 22 4.89543 22 6V13"></path>
+                        </svg>
+                        <p class="text-sm font-bold text-gray-700">Sustainability Metrics</p>
+                        <!-- CONSOLIDATED LIST -->
+                        <div class="grid grid-cols-2 gap-2 w-full pt-2">
+                            
+                            <!-- DATA LOOKUPS -->
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">Energy use on Aug 4th?</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">Plastic reduced on Aug 1st?</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">What is ABB's sustainability goal?</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">CO2 emission on Aug 1st?</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">LCA Summary (Product X)</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">Waste Diversion Rate (Q3)</button>
+                            
+                            <!-- ADVANCED FEATURES -->
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">❓ How to Use Features</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200" data-action="start-document-summary">✨ Summarize Report</button>
+                            <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200" data-action="start-file-query">🧠 Query Custom File</button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <!-- End Guide Options -->
+
+        </div>
+        
+        <!-- Typing indicator -->
+        <div id="typing-indicator" class="px-6 pb-2 hidden">
+            <div class="flex items-start gap-4 justify-start">
+                <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 shadow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-2xl shadow-sm" style="border-top-left-radius: 0;">
+                    <div class="flex items-center justify-center gap-1.5">
+                        <span class="h-2 w-2 bg-red-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                        <span class="h-2 w-2 bg-red-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                        <span class="h-2 w-2 bg-red-400 rounded-full animate-bounce"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 border-t border-gray-200/50">
+            <form id="chat-form" class="flex items-center gap-2">
+                <!-- FILE UPLOAD BUTTON -->
+                <div class="relative flex-shrink-0">
+                    <label for="file-upload-input" id="file-upload-label" class="text-gray-500 p-3 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                    </label>
+                    <input type="file" id="file-upload-input" accept=".csv" onchange="window.handleFileUpload(event)">
+                    <span id="upload-status" class="text-green-600 text-xs hidden"></span>
+                </div>
+
+                <button type="button" id="mic-btn" class="text-gray-500 p-3 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-400 transition-colors flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </button>
+                <input type="text" id="message-input" placeholder="Ask me anything..." autocomplete="off" class="flex-1 py-3 px-5 border-gray-300 border bg-white rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 transition shadow-sm">
+                <button type="submit" class="bg-gradient-to-br from-red-600 to-rose-600 text-white p-3 rounded-full hover:from-red-700 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-transform transform hover:scale-110 shadow-lg flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Creator Credit -->
+        <div class="text-center text-xs text-gray-400 py-2">
+            Created by Vaibhav
+        </div>
+    </div>
+
+    <!-- Firebase Imports and Setup (CRITICAL FOR ENVIRONMENT) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- MANDATORY GLOBAL VARIABLES ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // --- GLOBAL STATE ---
+        window.chatHistory = []; // Conversation history for the API
+        window.isAwaitingResponse = false;
+        window.userId = 'loading...'; // Global user ID state
+        window.activeLLMFeature = null; // State for multi-step LLM features
+        window.uploadedFileData = {}; // Storage for uploaded CSV data
+
+        // --- FIREBASE INITIALIZATION ---
+        window.initializeFirebase = async function() {
+            setLogLevel('Debug');
+            let auth;
+            let db;
+
+            // Authentication/Config check
+            if (Object.keys(firebaseConfig).length === 0 || !firebaseConfig.apiKey) {
+                console.warn("Firebase config not available. Running in non-persistent, unauthenticated mode.");
+                window.userId = crypto.randomUUID();
+                return; // Exit if no config, but globals are set above
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Authentication flow
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Auth state listener
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        window.userId = user.uid;
+                    } else {
+                        window.userId = 'unauthenticated_' + crypto.randomUUID().substring(0, 8);
+                    }
+                    console.log(`Authenticated with userId: ${window.userId}`);
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                window.userId = 'error_' + crypto.randomUUID().substring(0, 8);
+            }
+        };
+
+        // Call the initialization function
+        window.onload = () => {
+             window.initializeFirebase();
+             // Also call the original scroll to bottom logic
+             const chatWindow = document.getElementById('chat-window');
+             if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
+        };
+    </script>
+
+
+    <script>
+        const chatWindow = document.getElementById('chat-window');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const sampleQuestionsContainer = document.getElementById('sample-questions');
+        const micBtn = document.getElementById('mic-btn');
+        const ttsBtn = document.getElementById('tts-btn');
+        const ttsIconOn = document.getElementById('tts-icon-on');
+        const ttsIconOff = document.getElementById('tts-icon-off');
+        const uploadStatusElement = document.getElementById('upload-status');
+
+        // --- API CONFIG FIX: Using secure model and blank key for Canvas ---
+        const MODEL_NAME = 'gemini-2.5-flash-preview-09-2025';
+        const apiKey = ""; // Left blank for Canvas environment to provide
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
+        
+        if (typeof window.chatHistory === 'undefined') window.chatHistory = [];
+        if (typeof window.activeLLMFeature === 'undefined') window.activeLLMFeature = null;
+        
+        let isTtsEnabled = false;
+
+        // --- File Upload Handler ---
+        window.handleFileUpload = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                uploadStatusElement.textContent = "Error: Only CSV files are supported.";
+                uploadStatusElement.classList.remove('text-green-600');
+                uploadStatusElement.classList.add('text-red-600');
+                uploadStatusElement.classList.remove('hidden');
+                setTimeout(() => uploadStatusElement.classList.add('hidden'), 5000);
+                return;
+            }
+
+            uploadStatusElement.textContent = `Reading ${file.name}...`;
+            uploadStatusElement.classList.remove('hidden', 'text-red-600');
+            uploadStatusElement.classList.add('text-green-600');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                // Store the content under the file's name for later querying
+                window.uploadedFileData[file.name] = text; 
+                
+                uploadStatusElement.textContent = `"${file.name}" uploaded successfully!`;
+                setTimeout(() => uploadStatusElement.classList.add('hidden'), 3000);
+
+                // Optional: Provide conversational confirmation
+                displayBotMessage(`Thank you. I have successfully loaded **"${file.name}"** into memory. You can now use the '🧠 Query Custom File' option to ask questions about its content.`);
+            };
+
+            reader.onerror = function() {
+                uploadStatusElement.textContent = `Failed to read ${file.name}.`;
+                uploadStatusElement.classList.remove('text-green-600');
+                uploadStatusElement.classList.add('text-red-600');
+                setTimeout(() => uploadStatusElement.classList.add('hidden'), 5000);
+            };
+
+            reader.readAsText(file);
+        };
+
+        // --- LLM Call for Custom File Query ---
+        async function queryUploadedFile(fileName, userQuery) {
+            const fileContent = window.uploadedFileData[fileName];
+
+            if (!fileContent) {
+                return `Error: File **"${fileName}"** is not currently loaded. Please ensure the file was uploaded successfully.`;
+            }
+            
+            const systemInstruction = `You are a data analyst. The user has provided the content of a CSV file and a question about that content. Analyze the CSV data provided and answer the user's question directly and concisely, using specific numbers if available in the text. The response must be 2-3 sentences max.`;
+
+            // Limit file content to ensure it fits within the context window
+            const MAX_CHARS = 10000;
+            const truncatedContent = fileContent.substring(0, MAX_CHARS);
+            
+            const fullQuery = `CSV File Name: ${fileName}\n\nCSV Content (Truncated to ${MAX_CHARS} chars):\n---\n${truncatedContent}\n---\n\nUser Question: ${userQuery}`;
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: fullQuery }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                tools: [] 
+            };
+            
+            return await callGeminiAPI(payload);
+        }
+        
+
+        // --- LLM Call for Document Summary ---
+        async function generateDocumentSummary(topic) {
+            // Note: This is now the ONLY internal Sustainability document text used for summarization
+            const docText = `The ABB Sustainability Report outlines several key initiatives for 2024-2025. The core target remains achieving carbon neutrality in our own operations by 2030, with a major focus on transitioning fleet vehicles and using 100% renewable electricity. Progress on Scope 3 emissions is challenging, requiring deeper collaboration with our supply chain partners, particularly in materials sourcing and freight logistics. Water consumption reduction saw a 12% improvement in our high-risk sites, exceeding the target of 10%. We are also increasing the percentage of recycled plastics used in certain product casings by 5% year-over-year. Waste diversion rate for Q3 2025 achieved 88.5%, slightly above the 87% target. The Lifecycle Assessment (LCA) for Product X shows that 70% of its CO2 impact occurs during the use phase due to energy consumption. Community engagement focused on STEM education, impacting 50,000 students globally.`;
+            const systemInstruction = `You are a corporate communications assistant. Summarize the provided Sustainability Report text, focusing ONLY on the user's specific topic. Keep the summary to exactly 2 clear, concise sentences.`;
+
+            const userQuery = `Summarize the following report text based on the topic: '${topic}'. The report text is: "${docText}"`;
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                tools: [{ "google_search": {} }] 
+            };
+            
+            return await callGeminiAPI(payload);
+        }
+
+        // --- Centralized API Caller with Retry Logic ---
+        async function callGeminiAPI(payload) {
+             try {
+                const maxRetries = 3;
+                let responseText = "Sorry, I couldn't generate a response right now. Please try again later.";
+
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`API returned status ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        const candidate = result.candidates?.[0];
+
+                        if (candidate && candidate.content?.parts?.[0]?.text) {
+                            return candidate.content.parts[0].text;
+                        } else {
+                            throw new Error("Invalid response structure or no text content.");
+                        }
+
+                    } catch (error) {
+                        console.error(`API Attempt ${i + 1} failed:`, error);
+                        if (i < maxRetries - 1) {
+                            const delay = Math.pow(2, i) * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        }
+                    }
+                }
+                return responseText;
+            } catch (error) {
+                console.error("Critical Error during API call:", error);
+                return "Sorry, a critical error occurred while fetching the AI response.";
+            }
+        }
+        
+        // --- Custom File Data Logic (SUSTAINABILITY ONLY) ---
+
+        function getSustainabilityData(userInput) {
+            const lowerCaseInput = userInput.toLowerCase().trim().replace(/[?.]/g, ''); // Normalize input
+            
+            const internalDB = {
+                // Sustainability Data (Concise)
+                "energy use on aug 4th": "The energy consumption on August 4th, 2025, was **307 kWh**.",
+                "plastic reduced on aug 1st": "On August 1st, 2025, **12.5 kg of plastic** was reduced.",
+                "what is abb's sustainability goal": "ABB aims for a low-carbon society by being **carbon neutral in its own operations by 2030**.",
+                "co2 emission on aug 1st": "The CO2 emission on August 1st, 2025, was **104.9 kg**.",
+                "lca summary (product x)": "Product X's Lifecycle Assessment shows that **70% of its CO2 impact occurs during the use phase** due to energy consumption.",
+                "waste diversion rate (q3)": "The waste diversion rate for Q3 2025 reached **88.5%**, exceeding the target of 87%.",
+                
+                // Feature Guide Logic (for hardcoded buttons)
+                "how to use features": "**Multi-Step Features:** To start, click the feature. Then, type only the required input when prompted (e.g., 'your_file.csv, your question' for Query Custom File).",
+                "summarize report": "Start the summarization feature, then provide a specific topic (e.g., 'Scope 3 emissions').",
+                "query custom file": "Start the file query feature, then provide the **File Name** and your **Question** (e.g., 'report.csv, what is the total provision?').",
+                
+                // General/Fallback Data
+                "what is abb": "ABB is a technology leader in electrification and automation, optimizing how things are manufactured, moved, powered and operated."
+            };
+
+            for (const key in internalDB) {
+                if (lowerCaseInput.includes(key.toLowerCase().replace(/[?.]/g, ''))) {
+                    return internalDB[key];
+                }
+            }
+            
+            return null;
+        }
+
+        // --- Bot Logic (Handles routing for the new LLM features) ---
+        async function generateBotResponse(userInput) {
+            showTypingIndicator();
+            let botResponse;
+            let parts;
+
+            // 1. Execute multi-step LLM Feature if currently active
+            if (window.activeLLMFeature === 'DOCUMENT_SUMMARY') {
+                window.activeLLMFeature = null; 
+                botResponse = await generateDocumentSummary(userInput);
+                displayBotMessage(botResponse);
+                return;
+            } else if (window.activeLLMFeature === 'FILE_QUERY') {
+                parts = userInput.split(',').map(s => s.trim());
+                if (parts.length < 2) {
+                    window.activeLLMFeature = 'FILE_QUERY'; 
+                    displayBotMessage("I need both the file name and your question, separated by a comma (e.g., 'report.csv, what is the highest profit center?').");
+                    return;
+                }
+                
+                const fileName = parts[0];
+                const userQuery = parts.slice(1).join(', ').trim();
+
+                window.activeLLMFeature = null; 
+                botResponse = await queryUploadedFile(fileName, userQuery);
+                displayBotMessage(botResponse);
+                return;
+            } 
+            
+            // 2. Check for internal, hardcoded data matches (Initial questions and data lookups)
+            const customAnswer = getSustainabilityData(userInput);
+            
+            if (customAnswer) {
+                setTimeout(() => {
+                    displayBotMessage(customAnswer);
+                }, 100);
+            } else {
+                // 3. Fallback to general LLM chat (uses history for context)
+                const geminiAnswer = await callGeminiAPI({
+                    contents: window.chatHistory,
+                    tools: [{ "google_search": {} }]
+                });
+                displayBotMessage(geminiAnswer);
+            }
+        }
+
+        // --- Event Listeners and Utilities (Unchanged) ---
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (message) {
+                displayUserMessage(message);
+                messageInput.value = '';
+                generateBotResponse(message);
+            }
+        });
+
+        // Event listener for the LLM guide options
+        document.getElementById('sample-questions').addEventListener('click', (e) => {
+            let target = e.target;
+            if (!target.classList.contains('sample-question')) {
+                target = target.closest('.sample-question');
+            }
+
+            if (target) {
+                const question = target.textContent.trim();
+                const action = target.getAttribute('data-action');
+                target.classList.add('active');
+                
+                // Route to multi-step features
+                if (action && action.startsWith('start-')) {
+                    window.activeLLMFeature = action.split('-')[1].toUpperCase();
+                    let initialResponse = "I need more information.";
+                    
+                    if (window.activeLLMFeature === 'DOCUMENT_SUMMARY') {
+                        initialResponse = "I can summarize the Sustainability Report. Please type a specific topic, like 'Scope 3 emissions' or '2030 targets'.";
+                    } else if (window.activeLLMFeature === 'FILE_QUERY') {
+                        // Check if files are loaded before starting query flow
+                        if (Object.keys(window.uploadedFileData).length === 0) {
+                            initialResponse = "I don't have any files loaded yet! Please use the **upload icon (⬆️)** next to the microphone to load a CSV file first.";
+                            window.activeLLMFeature = null; // Cancel flow
+                        } else {
+                            const fileList = Object.keys(window.uploadedFileData).join(', ');
+                            initialResponse = `Which file do you want to query? Loaded files: **${fileList}**. Please provide the **File Name** and your **Question** (e.g., 'report.csv, what is the total provision?').`;
+                        }
+                    }
+                    
+                    setTimeout(() => {
+                        displayUserMessage(question);
+                        displayBotMessage(initialResponse);
+                        target.classList.remove('active');
+                    }, 100);
+                    return;
+                } 
+                
+                // Standard Question Handler
+                setTimeout(() => {
+                    displayUserMessage(question);
+                    generateBotResponse(question);
+                    target.classList.remove('active');
+                }, 100);
+            }
+        });
+
+
+        ttsBtn.addEventListener('click', () => {
+            isTtsEnabled = !isTtsEnabled;
+            ttsIconOn.classList.toggle('hidden');
+            ttsIconOff.classList.toggle('hidden');
+            if (!isTtsEnabled) {
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
+            }
+        });
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+
+            micBtn.addEventListener('click', () => {
+                if (micBtn.classList.contains('recording')) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            });
+
+            recognition.onstart = () => {
+                micBtn.classList.remove('text-gray-500', 'hover:bg-gray-100');
+                micBtn.classList.add('recording', 'bg-red-100', 'text-red-600');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                messageInput.value = transcript;
+                messageInput.focus();
+            };
+            
+            recognition.onend = () => {
+                micBtn.classList.remove('recording', 'bg-red-100', 'text-red-600');
+                micBtn.classList.add('text-gray-500', 'hover:bg-gray-100');
+            }
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                recognition.stop();
+            };
+        } else {
+            if(micBtn) micBtn.style.display = 'none';
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window && isTtsEnabled) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function displayUserMessage(message) {
+            const options = document.getElementById('sample-questions');
+            if (options) options.style.display = 'none';
+            window.chatHistory.push({ role: "user", parts: [{ text: message }] });
+
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('flex', 'items-start', 'gap-4', 'justify-end', 'mb-6', 'message-fade-in');
+            messageElement.innerHTML = `
+                <div class="bg-gradient-to-br from-red-600 to-rose-600 text-white p-4 rounded-2xl max-w-sm shadow-md" style="border-top-right-radius: 0;">
+                    <p class="text-sm">${message}</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow overflow-hidden text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" /></svg>
+                </div>
+            `;
+            chatWindow.appendChild(messageElement);
+            scrollToBottom();
+        }
+
+        function displayBotMessage(message) {
+            hideTypingIndicator();
+            window.chatHistory.push({ role: "model", parts: [{ text: message }] });
+
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('flex', 'items-start', 'gap-4', 'justify-start', 'mb-6', 'message-fade-in');
+            messageElement.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 shadow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-2xl shadow-sm max-w-xs" style="border-top-left-radius: 0;">
+                    <p class="text-sm text-gray-700">${message}</p>
+                </div>
+            `;
+            chatWindow.appendChild(messageElement);
+            scrollToBottom();
+            speakText(message);
+        }
+
+        function scrollToBottom() {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
