@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,19 +126,16 @@
 <body class="flex items-center justify-center min-h-screen">
 
     <div id="chat-container" class="w-full max-w-lg mx-4 rounded-3xl shadow-2xl flex flex-col overflow-hidden" style="height: 95vh; max-height: 800px;">
-        <!-- Header -->
         <div class="p-5 bg-gradient-to-r from-red-600 to-rose-700 flex items-center justify-between text-white shadow-lg">
             <div class="flex items-center">
                  <div class="relative w-12 h-12">
                      <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center p-1 shadow-md">
-                         <!-- UPDATED LOGO SOURCE -->
                          <img src="images.png" alt="ABB Logo" class="h-8 w-auto">
                      </div>
                      <span class="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-green-400 border-2 border-white"></span>
                  </div>
                  <div class="ml-4">
                      <h1 class="text-xl font-bold">ABB BOT</h1>
-                     <!-- RESTORING STATUS TEXT BELOW NAME -->
                      <p class="text-sm text-red-100/70">Active now</p>
                  </div>
             </div>
@@ -153,9 +149,7 @@
             </button>
         </div>
 
-        <!-- Chat Window -->
         <div id="chat-window" class="flex-1 p-6 overflow-y-auto bg-white">
-            <!-- Initial Bot Message -->
             <div class="message-fade-in flex items-start gap-4 justify-start mb-6">
                 <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 shadow">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
@@ -165,22 +159,17 @@
                 </div>
             </div>
 
-            <!-- Guide Options for LLM Features - CONSOLIDATED AND PROMOTED TO THE START -->
             <div id="sample-questions" class="my-8 message-fade-in" style="animation-delay: 0.5s;">
                 <div class="grid grid-cols-1 gap-4">
                     
-                    <!-- SUSTAINABILITY COLUMN (Full Width) -->
                     <div class="topic-card space-y-2 p-4 flex flex-col items-center w-full">
-                        <!-- Sustainability Icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                              <path d="M17.5 19.4L15 15.4L16.4 14L18.4 15.9L22.9 10.4L21.5 9L17.5 13.5L12.5 8.5L8.5 12.5L4.5 8.5L2 11V18C2 19.1046 2.89543 20 4 20H15C16.1046 20 17 19.1046 17 18V18L17.5 19.4Z"></path>
                              <path d="M11 20H4C2.89543 20 2 19.1046 2 18V6C2 4.89543 2.89543 4 4 4H20C21.1046 4 22 4.89543 22 6V13"></path>
                         </svg>
                         <p class="text-sm font-bold text-gray-700">Sustainability Metrics</p>
-                        <!-- CONSOLIDATED LIST -->
                         <div class="grid grid-cols-2 gap-2 w-full pt-2">
                             
-                            <!-- DATA LOOKUPS -->
                             <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">Energy use on Aug 4th?</button>
                             <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">Plastic reduced on Aug 1st?</button>
                             <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">What is ABB's sustainability goal?</button>
@@ -188,18 +177,14 @@
                             <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">What was the highest daily plastic reduced value and on what date did it occur?</button>
                             <button class="sample-question w-full bg-white text-red-600 text-xs font-medium py-2 px-2 border border-red-200">What is the average consumption of Argon and Helium combined?</button>
                             
-                            <!-- ADVANCED FEATURES -->
-            
+                          
                         </div>
                     </div>
                     
                 </div>
             </div>
-            <!-- End Guide Options -->
-
-        </div>
+            </div>
         
-        <!-- Typing indicator -->
         <div id="typing-indicator" class="px-6 pb-2 hidden">
             <div class="flex items-start gap-4 justify-start">
                 <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 shadow">
@@ -215,10 +200,8 @@
             </div>
         </div>
 
-        <!-- Input Area -->
         <div class="p-4 border-t border-gray-200/50">
             <form id="chat-form" class="flex items-center gap-2">
-                <!-- FILE UPLOAD BUTTON -->
                 <div class="relative flex-shrink-0">
                     <label for="file-upload-input" id="file-upload-label" class="text-gray-500 p-3 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-400 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -243,13 +226,11 @@
             </form>
         </div>
         
-        <!-- Creator Credit -->
         <div class="text-center text-xs text-gray-400 py-2">
             Created by Vaibhav
         </div>
     </div>
 
-    <!-- Firebase Imports and Setup (CRITICAL FOR ENVIRONMENT) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -330,10 +311,11 @@
         const ttsIconOff = document.getElementById('tts-icon-off');
         const uploadStatusElement = document.getElementById('upload-status');
 
-        // --- API CONFIG FIX: Using secure model and blank key for Canvas ---
-        const MODEL_NAME = 'gemini-2.5-flash-preview-09-2025';
-        const apiKey = "AIzaSyALyruh7E02U_xmpPjT973cI3l2sRE1viI"; // Left blank for Canvas environment to provide
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
+        // --- API CONFIG: INSERT YOUR KEY HERE ---
+        const MODEL_NAME = 'gemini-2.5-flash';
+        // ⚠️ IMPORTANT: Replace the placeholder value below with your actual, valid Gemini API Key.
+        const GEMINI_API_KEY = "AIzaSyALyruh7E02U_xmpPjT973cI3l2sRE1viI"; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
         
         if (typeof window.chatHistory === 'undefined') window.chatHistory = [];
         if (typeof window.activeLLMFeature === 'undefined') window.activeLLMFeature = null;
@@ -427,43 +409,53 @@
         // --- Centralized API Caller with Retry Logic ---
         async function callGeminiAPI(payload) {
              try {
-                const maxRetries = 3;
-                let responseText = "Sorry, I couldn't generate a response right now. Please try again later.";
+                 const maxRetries = 3;
+                 let responseText = "Sorry, I couldn't generate a response right now. Please try again later.";
 
-                for (let i = 0; i < maxRetries; i++) {
-                    try {
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
+                 for (let i = 0; i < maxRetries; i++) {
+                     try {
+                         // Check for API Key validity before making the request
+                         if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_VALID_GEMINI_API_KEY_HERE") {
+                             console.error("API Key is missing or invalid placeholder.");
+                             return "Error: The Gemini API Key is missing or incorrectly set. Please check the code configuration.";
+                         }
 
-                        if (!response.ok) {
-                            throw new Error(`API returned status ${response.status}`);
-                        }
+                         const response = await fetch(apiUrl, {
+                             method: 'POST',
+                             headers: { 'Content-Type': 'application/json' },
+                             body: JSON.stringify(payload)
+                         });
 
-                        const result = await response.json();
-                        const candidate = result.candidates?.[0];
+                         if (!response.ok) {
+                             throw new Error(`API returned status ${response.status}`);
+                         }
 
-                        if (candidate && candidate.content?.parts?.[0]?.text) {
-                            return candidate.content.parts[0].text;
-                        } else {
-                            throw new Error("Invalid response structure or no text content.");
-                        }
+                         const result = await response.json();
+                         const candidate = result.candidates?.[0];
 
-                    } catch (error) {
-                        console.error(`API Attempt ${i + 1} failed:`, error);
-                        if (i < maxRetries - 1) {
-                            const delay = Math.pow(2, i) * 1000;
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                        }
-                    }
-                }
-                return responseText;
-            } catch (error) {
-                console.error("Critical Error during API call:", error);
-                return "Sorry, a critical error occurred while fetching the AI response.";
-            }
+                         if (candidate && candidate.content?.parts?.[0]?.text) {
+                             return candidate.content.parts[0].text;
+                         } else {
+                             // Handle cases where API returns blocks or safety reasons
+                             if (result.candidates?.[0]?.finishReason === 'SAFETY') {
+                                return "I cannot respond to this query due to safety policy concerns.";
+                             }
+                             throw new Error("Invalid response structure or no text content.");
+                         }
+
+                     } catch (error) {
+                         console.error(`API Attempt ${i + 1} failed:`, error);
+                         if (i < maxRetries - 1) {
+                             const delay = Math.pow(2, i) * 1000;
+                             await new Promise(resolve => setTimeout(resolve, delay));
+                         }
+                     }
+                 }
+                 return responseText;
+             } catch (error) {
+                 console.error("Critical Error during API call:", error);
+                 return "Sorry, a critical error occurred while fetching the AI response.";
+             }
         }
         
         // --- Custom File Data Logic (SUSTAINABILITY ONLY) ---
@@ -477,8 +469,10 @@
                 "plastic reduced on aug 1st": "On August 1st, 2025, **12.5 kg of plastic** was reduced.",
                 "what is abb's sustainability goal": "ABB aims for a low-carbon society by being **carbon neutral in its own operations by 2030**.",
                 "co2 emission on aug 1st": "The CO2 emission on August 1st, 2025, was **104.9 kg**.",
-                "lca summary (product x)": "Product X's Lifecycle Assessment shows that **70% of its CO2 impact occurs during the use phase** due to energy consumption.",
-                "waste diversion rate (q3)": "The waste diversion rate for Q3 2025 reached **88.5%**, exceeding the target of 87%.",
+                
+                // NEW COMPLEX QUERIES
+                "what was the highest daily plastic reduced value and on what date did it occur": "The **highest daily plastic reduced value was 15.3 kg**, which occurred on **August 2nd, 2025**.",
+                "what is the average consumption of argon and helium combined": "The average daily consumption for Argon and Helium combined in August is **20.5 cubic meters**.",
                 
                 // Feature Guide Logic (for hardcoded buttons)
                 "how to use features": "**Multi-Step Features:** To start, click the feature. Then, type only the required input when prompted (e.g., 'your_file.csv, your question' for Query Custom File).",
